@@ -38,7 +38,8 @@ The binary provided was compiled on a linux machine.
 
 ## Compiling source code
 The following command can be used to compile source code:
-g++ MainProgram.cpp DnaFunctions.cpp FFTFunctions.cpp ReadFiles.cpp GermlineCluster.cpp QueryAlignment.cpp SWAlignment.cpp FFTAlign.cpp -std=c++11 -lfftw3 -O
+	
+	g++ MainProgram.cpp DnaFunctions.cpp FFTFunctions.cpp ReadFiles.cpp GermlineCluster.cpp QueryAlignment.cpp SWAlignment.cpp FFTAlign.cpp -std=c++11 -lfftw3 -O
 
 
 
