@@ -5,7 +5,7 @@ FFT implementation for NGS antibody sequence alignments
 ## Description
 
 This program is used for aligning NGS data to germline antibody genes. It utilizes the FFTW program to perform  local 
-alignments of a read to a provided list of possible genes. On a single 2.7 GHz processor, it can align 1 million sequences to germline genes
+alignments of a read against a provided list of possible germline genes. On a single 2.7 GHz processor, it can align 1 million sequences to germline genes
 in 20-30 minutes.
 
 ## General usage
