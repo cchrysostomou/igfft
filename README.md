@@ -20,11 +20,11 @@ The output of the program is a single tab delimited file summarizing (1) V and/o
 ## Examples
 Running program from a terminal
 
-###### In this example we run the program by defining the input FASTQ file, the location of the V and J germline files, and an output file:
+###### Example 1: Run the program and define the input FASTQ file, the location of the V and J germline files, and an output file:
 
-binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j HomosapiensIGH_IGK_IGL_J.txt
+	binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j HomosapiensIGH_IGK_IGL_J.txt
 
-###### In this next example we will also define the number of top v hits we want returned (2) and the maximum number of allowed indels in the antibody (20 for v gene and 2 for j gene)):
+###### Example 2: Also define the number of top v hits we want returned (2) and the maximum number of allowed indels in the antibody (20 for v gene and 2 for j gene)):
 
 binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j HomosapiensIGH_IGK_IGL_J.txt -o sample/resultfile.txt -vnum_hits 2 -vgap 20 -jgap 2
 
