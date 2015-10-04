@@ -4,7 +4,7 @@ FFT implementation for NGS antibody sequence alignments
 
 ## Description
 
-This program is used for aligning NGS data to germline antibody genes. It utilizes the FFTW program to perform local 
+This program is used for aligning NGS data to germline antibody genes. It utilizes the FFTW program to perform  local 
 alignments of a read to a provided list of possible genes. On a single 2.7 GHz processor, it can align 1 million sequences to germline genes
 in 20-30 minutes.
 
@@ -20,13 +20,13 @@ The output of the program is a single tab delimited file summarizing (1) V and/o
 ## Examples
 Running program from a terminal
 
-In this example we run the program by defining the input FASTQ file, the location of the V and J germline files, and an output file:
+###### In this example we run the program by defining the input FASTQ file, the location of the V and J germline files, and an output file:
 
 binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j HomosapiensIGH_IGK_IGL_J.txt
 
-In this next example we will also define the number of top v hits we want returned (2 in this example):
+###### In this next example we will also define the number of top v hits we want returned (2) and the maximum number of allowed indels in the antibody (20 for v gene and 2 for j gene)):
 
-binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j HomosapiensIGH_IGK_IGL_J.txt -o sample/resultfile.txt -vnum_hits 2
+binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j HomosapiensIGH_IGK_IGL_J.txt -o sample/resultfile.txt -vnum_hits 2 -vgap 20 -jgap 2
 
 All possible default parameters in the program can be found using the following command
 binary/igfft --defaults
