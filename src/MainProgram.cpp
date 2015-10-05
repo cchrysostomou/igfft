@@ -15,7 +15,7 @@
 #include "ReadFiles.h" //this file stores fucntions for reading files in an out
 #include "StructVars.h" //this file stores all structure variables used in this program
 #include "DnaFunctions.h" //for function invovling nucleotides
-#include "FFTFunctions.h"
+#include "FFTFunctions.h" 
 #include <ctime>
 #include <limits>
 

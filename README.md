@@ -22,11 +22,11 @@ Running program from a terminal
 
 ###### Example 1: Run the program and define the input FASTQ file, the location of the V and J germline files, and an output file:
 
-	binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j HomosapiensIGH_IGK_IGL_J.txt
+	binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j germlines/HomosapiensIGH_IGK_IGL_J.txt
 
 ###### Example 2: Also define the number of top v hits we want returned (2) and the maximum number of allowed indels in the antibody (20 for v gene and 2 for j gene)):
 
-	binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j HomosapiensIGH_IGK_IGL_J.txt -o sample/resultfile.txt -vnum_hits 2 -vgap 20 -jgap 2
+	binary/igfft sample/Demo_2.query.fastq -i FASTQ -v germlines/HomosapiensIGH_IGK_IGL_V.txt -j germlines/HomosapiensIGH_IGK_IGL_J.txt -o sample/resultfile.txt -vnum_hits 2 -vgap 20 -jgap 2
 
 ###### All possible default parameters in the program can be found using the following command
 	
