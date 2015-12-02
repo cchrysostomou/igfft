@@ -22,6 +22,7 @@
 using namespace std;
 
 structvars::VarParameters variables_used; //stores useful variables for running program (all input variables by user get stored here)
+
 enum UserSettings{
 	allowed_gaps,
 	match_sw,
@@ -84,7 +85,9 @@ void PrintDefaultParameters(bool to_file = true);
 
 int main(int argc, char *argv[]) //read in variables and determined how we are aligning sequences to provided germlines
 {
+	
 	InitializeUserSettings();
+	
 	map<string, int> alignmentMethod; //sturucture of alignmentMethodl -> {'vgene': '0, 1, or 2', 'jgene': '0, 1, or 2'} where 0 = > no alignment to germline, 1 => use clusters to align, 2 => use unclustered germlines to align
 	alignmentMethod["vgene"] = NONE;
 	alignmentMethod["jgene"] = NONE;
@@ -149,36 +152,21 @@ void RunAlignmentProgram(map<string, int> method)
 	QueryAlignment dGermlineAlignment(inputseqinfo, variables_used.query_algn_settings['D']);
 
 	if (method["vgene"] != NONE){ //First we need to read in the file containing v germline genes.  Reading in teh database willl subsequently merge germlinesinto clusters
-		std::printf("Processing the provided V germline database:\n");
-		if (variables_used.query_algn_settings['V'].fileGermline[1].length()>0){
-			vGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['V'].fileGermline[0], variables_used.query_algn_settings['V'].fileGermline[1], false); //read in the v germline sequences, and the second provided file defining the clustered sequences
-		}
-		else{
-			vGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['V'].fileGermline[0], method["vgene"], false); //no cluster was provided in a file, so we will cluster sequences ad-hoc
-		}
-		vGermlineAlignment.PrintClusterResults("vgermlineclusters.txt");
+		std::printf("Processing the provided V germline database:\n");	
+		vGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['V'].fileGermline, method["vgene"], false); //no cluster was provided in a file, so we will cluster sequences ad-hoc
+		// vGermlineAlignment.PrintClusterResults("vgermlineclusters.txt");
 	}
 
 	if (method["jgene"] != NONE){ //First we need to read in the file containing j germline genes.  Reading in teh database willl subsequently merge germlinesinto clusters
-		std::printf("Processing the provided J germline database:\n");
-		if (variables_used.query_algn_settings['J'].fileGermline[1].length() > 0){
-			jGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['J'].fileGermline[0], variables_used.query_algn_settings['J'].fileGermline[1]);
-		}
-		else{
-			jGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['J'].fileGermline[0], method["jgene"]);//no cluster was provided in a file, so we will cluster sequences ad-hoc
-		}
-		jGermlineAlignment.PrintClusterResults("jgermlineclusters.txt");
+		std::printf("Processing the provided J germline database:\n");		
+		jGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['J'].fileGermline, method["jgene"]);//no cluster was provided in a file, so we will cluster sequences ad-hoc
+		// jGermlineAlignment.PrintClusterResults("jgermlineclusters.txt");
 	}
 
-	if (method["dgene"] != NONE){ //First we need to read in the file containing j germline genes.  Reading in teh database willl subsequently merge germlinesinto clusters
-		std::printf("Processing the provided D germline database:\n");
-		if (variables_used.query_algn_settings['D'].fileGermline[1].length() > 0){
-			jGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['D'].fileGermline[0], variables_used.query_algn_settings['D'].fileGermline[1]);
-		}
-		else{
-			jGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['D'].fileGermline[0], method["dgene"]);//no cluster was provided in a file, so we will cluster sequences ad-hoc
-		}
-	}
+	//if (method["dgene"] != NONE){ //First we need to read in the file containing j germline genes.  Reading in teh database willl subsequently merge germlinesinto clusters
+	//	std::printf("Processing the provided D germline database:\n");
+	//	jGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['D'].fileGermline[0], method["dgene"]);//no cluster was provided in a file, so we will cluster sequences ad-hoc	
+	//}
 
 	/****************************************/
 	int counts = 0, numVClusterHits = 0, numVGermlineHits = 0, numJClusterHits = 0, numJGermlineHits = 0;
@@ -505,6 +493,9 @@ void EvaluateParameters(int argc, char *argv[]){
 	//printf("%i \n",argc);
 	//for (int k =0;k<argc;k++)
 	//	printf("%s \n",argv[k]);
+	/*printf("%i\n", argc);
+	for (int z = 0; z < argc; z++)
+		printf("%s\n",argv[z]);*/
 	if (argc < 4){//check input arguments
 		if (string(argv[1]) == "--defaults"){
 			PrintDefaultParameters();
@@ -512,19 +503,15 @@ void EvaluateParameters(int argc, char *argv[]){
 		}
 		else if (string(argv[1]) == "--version")
 		{
-			printf("Version 0.6");
+			printf("\nVersion 0.61");
 			exit(1);
 		}
 		else{
-
 			printf("Error: You must enter the location of the sequence file, and the location of at least one database to compare to\n");
 			exit(EXIT_FAILURE);
 		}
 	}
-	else if (argc % 2 != 0){//check if even number of arguments
-		printf("Error entering parameters\n");
-		exit(EXIT_FAILURE);
-	}
+	
 	pFile = fopen(argv[1], "r");
 	if (!pFile){//check if input file name exists
 		printf("Error opening file\n");
@@ -548,40 +535,45 @@ void EvaluateParameters(int argc, char *argv[]){
 
 		case 'v': //location of the vgermline database
 			currentVar++;
-			if (strlen(argv[currentVar - 1]) == 2){
-				filename = string(argv[currentVar]);
-				ss.clear();
-				ss.str(filename);
+			if (strlen(argv[currentVar - 1]) == 2){	
 				numDatabase = 0;
-				//input each of the filenames delimited by a ','
-				while (getline(ss, token, ',')){
-					try{
-						if (token != ""){
-							readfiles::RemoveTrailingSpaces(token); //remove all trailing white spaces
-							//make sure teh files they passed in exist
-							pFile = fopen(token.c_str(), "r");
-							if (!pFile){//check if input file name exists
-								printf("V Germline database file location does not exist: %s", token.c_str());
-								exit(EXIT_FAILURE);
-							}
-							fclose(pFile);
-							variables_used.query_algn_settings['V'].fileGermline[numDatabase] = token; //the first index MUST be the location of the list of germline sequences.  the second index MUST be the location of the clustered germline seuqences.
-							numDatabase++;
+				bool exitloop = false;
+				//input each of the filenames separated by a space
+				do{
+					filename = string(argv[currentVar]);
+					if(filename.length()==0){
+						currentVar += 1;
+						continue;
+					}
+					if (filename[0] != '-'){						
+						readfiles::RemoveTrailingSpaces(filename); //remove all trailing white spaces
+						//make sure teh files they passed in exist
+						pFile = fopen(filename.c_str(), "r");
+						if (!pFile){ //check if input file name exists
+							printf("V Germline database file location does not exist: %s\n", filename.c_str());
+							exit(EXIT_FAILURE);
 						}
+						fclose(pFile);
+						variables_used.query_algn_settings['V'].fileGermline.push_back(filename); //the first index MUST be the location of the list of germline sequences.  the second index MUST be the location of the clustered germline seuqences.
+						numDatabase++;
+						currentVar += 1;
+						if(currentVar >= argc)
+							exitloop = true;
 					}
-					catch (std::exception&e){
-						printf("The V Gene Database must be defined by two file locations: the first location is the list of germline sequences, and the second file refers to the clustered germline sequences");
-						exit(EXIT_FAILURE);
-					}
-				}
+					else{
+						currentVar -= 1;
+						exitloop = true;
+					}					
+				}while(!exitloop);
+				
 				//error out if we did not read 2 files (index starts at 0)
-				if (numDatabase < 1 || variables_used.query_algn_settings['V'].fileGermline[0] == "")
+				/*if (numDatabase < 1 || variables_used.query_algn_settings['V'].fileGermline[0] == "")
 				{
 					printf("The V Gene Database file location must be defined");
 					exit(EXIT_FAILURE);
-				}
-				//define whether user desires vgene data
-				variables_used.containsVGermline = true;
+				}*/
+				//define whether user desires vgene data				
+				variables_used.containsVGermline = numDatabase > 0? true : false;
 			}
 			else{
 				EvaluateAlgnParameters('V', parameter.substr(2), string(argv[currentVar]));
@@ -591,37 +583,44 @@ void EvaluateParameters(int argc, char *argv[]){
 			currentVar++;
 			//define whether the user desires j gene data
 			if (strlen(argv[currentVar - 1]) == 2){
-				variables_used.containsJGermline = true;
-				filename = string(argv[currentVar]);
-				ss.clear();
-				ss.str(filename);
 				numDatabase = 0;
-				//input each of the filenames delimited by a ','
-				while (getline(ss, token, ',')){
-					try{
-						//token.erase(remove_if(token.begin(), token.end(), isspace), token.end());
-						readfiles::RemoveTrailingSpaces(token); //remove trailling white spaces
+				bool exitloop = false;
+				//input each of the filenames separated by a space
+				do{
+					filename = string(argv[currentVar]);					
+					if(filename.length()==0){
+						currentVar += 1;
+						continue;
+					}
+					if (filename[0] != '-'){						
+						readfiles::RemoveTrailingSpaces(filename); //remove all trailing white spaces
 						//make sure teh files they passed in exist
-						pFile = fopen(token.c_str(), "r");
-						if (!pFile){//check if input file name exists
-							printf("J Germline database file location does not exist: %s", token.c_str());
+						pFile = fopen(filename.c_str(), "r");
+						if (!pFile){ //check if input file name exists
+							printf("J Germline database file location does not exist: %s\n", filename.c_str());
 							exit(EXIT_FAILURE);
 						}
 						fclose(pFile);
-						variables_used.query_algn_settings['J'].fileGermline[numDatabase] = token; //the first index MUST be the location of the list of germline sequences.  the second index MUST be the location of the clustered germline seuqences.
+						variables_used.query_algn_settings['J'].fileGermline.push_back(filename); //the first index MUST be the location of the list of germline sequences.  the second index MUST be the location of the clustered germline seuqences.
 						numDatabase++;
+						currentVar += 1;
+						if(currentVar >= argc)
+							exitloop = true;
 					}
-					catch (std::exception&e){
-						printf("The J Gene Database must be defined by two file locations: the first location is the list of germline sequences, and the second file refers to the clustered germline sequences");
-						exit(EXIT_FAILURE);
-					}
-				}
+					else{
+						currentVar -= 1;
+						exitloop = true;
+					}					
+				}while(!exitloop);
+				
 				//error out if we did not read 2 files (index starts at 0)
-				if (numDatabase < 1 || variables_used.query_algn_settings['J'].fileGermline[0] == "")
+				/*if (numDatabase < 1 || variables_used.query_algn_settings['J'].fileGermline[0] == "")
 				{
-					printf("The J Gene Database file location must be provided");
+					printf("The J Gene Database file location must be defined");
 					exit(EXIT_FAILURE);
-				}
+				}*/
+				//define whether user desires vgene data				
+				variables_used.containsJGermline = numDatabase > 0? true : false;
 			}
 			else{
 				EvaluateAlgnParameters('J', parameter.substr(2), string(argv[currentVar]));
@@ -631,38 +630,22 @@ void EvaluateParameters(int argc, char *argv[]){
 			currentVar++;
 			//define whether the user desires j gene data
 			if (strlen(argv[currentVar - 1]) == 2){
-				variables_used.containsJGermline = true;
-
-				filename = string(argv[currentVar]);
-				ss.clear();
-				ss.str(filename);
+				printf("The D gene germline set is not currently considered");
 				numDatabase = 0;
-				//input each of the filenames delimited by a ','
-				while (getline(ss, token, ',')){
-					try{
-						//token.erase(remove_if(token.begin(), token.end(), isspace), token.end());
-						readfiles::RemoveTrailingSpaces(token); //remove trailling white spaces
-						//make sure teh files they passed in exist
-						pFile = fopen(token.c_str(), "r");
-						if (!pFile){//check if input file name exists
-							printf("J Germline database file location does not exist: %s", token.c_str());
-							exit(EXIT_FAILURE);
-						}
-						fclose(pFile);
-						variables_used.query_algn_settings['D'].fileGermline[numDatabase] = token; //the first index MUST be the location of the list of germline sequences.  the second index MUST be the location of the clustered germline seuqences.
-						numDatabase++;
+				bool exitloop = false;
+				//input each of the filenames separated by a space
+				do{
+					filename = string(argv[currentVar]);					
+					if (filename[0] != '-'){											
+						currentVar += 1;
+						if(currentVar >= argc)
+							exitloop = true;
 					}
-					catch (std::exception&e){
-						printf("The J Gene Database must be defined by two file locations: the first location is the list of germline sequences, and the second file refers to the clustered germline sequences");
-						exit(EXIT_FAILURE);
-					}
-				}
-				//error out if we did not read 2 files (index starts at 0)
-				if (numDatabase < 1 || variables_used.query_algn_settings['D'].fileGermline[0] == "")
-				{
-					printf("The J Gene Database file location must be provided");
-					exit(EXIT_FAILURE);
-				}
+					else{
+						currentVar -= 1;
+						exitloop = true;
+					}					
+				}while(!exitloop);				
 			}
 			else{
 				EvaluateAlgnParameters('D', parameter.substr(2), string(argv[currentVar]));

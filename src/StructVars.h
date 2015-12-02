@@ -145,7 +145,7 @@ namespace structvars{
 	};
 
 	struct AlignmentProgramSettings{
-		std::string fileGermline[2]; //current format for each string from user "filetype(fasta/txt),filename referring to location of germline sequences, filename referring to location of clustered sequences"
+		std::vector<std::string> fileGermline; //current format for each string from user "filetype(fasta/txt),filename referring to location of germline sequences, filename referring to location of clustered sequences"
 		FFTSettings fftParams;
 		SWAlignSettings swParams;
 		PeptideFFTSettings peptideParams;
@@ -153,9 +153,7 @@ namespace structvars{
 		
 		int maxHits, numObsAboveFoldRatio;
 		double scoreFoldRatio, clusterGermlineCutoff;	
-		AlignmentProgramSettings(){
-			fileGermline[0] = "";
-			fileGermline[1] = "";
+		AlignmentProgramSettings(){			
 			group_into_clusters = true;
 			scoreFoldRatio = 2.0;
 			clusterGermlineCutoff = 0.8;

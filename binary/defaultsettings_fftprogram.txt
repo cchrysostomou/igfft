@@ -1,0 +1,23 @@
+-v	none	Location of V Germline Database
+-d	none	Location of D Germline Database
+-j	none	Location of D Germline Database
+-h	true	Query file includes header row
+-i	FASTA	Input file type
+-o	none	output filename
+-cluster_per_id	0.800000	
+-gap	10	
+-gap_extend_fft	2.000000	
+-gap_extend_sw	10.000000	
+-gap_open_fft	10.000000	
+-gap_open_sw	50.000000	
+-group_clusters	true	
+-match_sw	5	
+-min_per_id	0.300000	
+-mismatch_sw	4	
+-num_hits	5	
+-pep_len	20	
+-ratio_cutoff	2.000000	
+-s_fft	5.000000	
+-s_pep	3.000000	
+-similar_clusters	0.800000	
+-times_above_ratio	3	

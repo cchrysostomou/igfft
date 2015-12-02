@@ -234,6 +234,8 @@ structvars::Fileinfo QueryAlignment::ClusterQueryFileInfo(){
 
 /*functions*/
 void QueryAlignment::ReadGermlineDatabase(const string & germline_file_name, const string & cluster_file_name,bool allowSubstrings){
+	//NO LONGER A FUNCTIONAL FUNCTION//
+
 	DeleteGermlineVars(); //if its not the frist time we called this function, then we need to delete the germline database we have made previously
 
 	ReadGermlineFile(germline_file_name); //first read in all of the germlines defined in the germline file name
@@ -250,9 +252,10 @@ void QueryAlignment::ReadGermlineDatabase(const string & germline_file_name, con
 	}
 	
 	//next read in the information where germline sequences have been pre-grouped into clusters
-	printf("\tReading in clusters from provided file...\n", numClusters);
+	printf("\tLoaded %lu germline sequences...\n", germlineDatabase.size());
+	printf("\tReading in clusters from provided file...\n");
 	ReadInClusterDatabase(cluster_file_name);
-	printf("\tMapping pairwise cluster alignments...\n", numClusters);
+	printf("\tMapping pairwise cluster alignments...\n");
 	AlignPairwiseClusters();	
 	FindGermlineStart(); 
 	printf("\tGermline sequences have been grouped into clusters.\n");
@@ -262,10 +265,13 @@ void QueryAlignment::ReadGermlineDatabase(const string & germline_file_name, con
 	InitializeTransformVariables(allowSubstrings);
 }
 
-void QueryAlignment::ReadGermlineDatabase(const string & germline_file_name, int method, bool allowSubstrings){
-	DeleteGermlineVars(); //if its not the frist time we called this function, then we need to delete the germline database we have made previously
+void QueryAlignment::ReadGermlineDatabase(const std::vector<std::string> & germline_files, int method, bool allowSubstrings){
+	// DeleteGermlineVars(); //if its not the frist time we called this function, then we need to delete the germline database we have made previously
 
-	ReadGermlineFile(germline_file_name); //first read in all of the germlines defined in the germline file name
+	for (int i = 0; i < germline_files.size(); i++){
+		printf("%s\n", germline_files[i].c_str());
+		ReadGermlineFile(germline_files[i]); //first read in all of the germlines defined in the germline file name
+	}
 
 	//Now we know the size of the database, so we can start initlalizing some of the germline variables
 	germlineHits = new structvars::GermlineAlignmentResults[numGermlines];
@@ -275,15 +281,15 @@ void QueryAlignment::ReadGermlineDatabase(const string & germline_file_name, int
 		germlineSequences[i] = germlineDatabase[i].germlineSeqData.seq;
 		aligned_to_germline_scores[i].resize(2);
 	}
-
-	printf("\tGrouping highly similar germline sequences into clusters...\n", numClusters);
+	printf("\tLoaded %lu germline sequences...\n", germlineDatabase.size());
+	printf("\tGrouping highly similar germline sequences into clusters...\n");
 	//next read in the information concerning the clusters
 	if (method == COPY)
 		CopyGermlineDBToClusterDB(); //dont cluster, just make each germline an indivdual cluster result 
 	else if (method == MAKE)
 		GroupGermlinesIntoClusters();  
 
-	printf("\tMapping pairwise cluster alignments...\n", numClusters);
+	printf("\tMapping pairwise cluster alignments...\n");
 	AlignPairwiseClusters();
 	FindGermlineStart();
 	printf("\tGermline sequences have been grouped into clusters.\n");
@@ -1452,6 +1458,13 @@ void QueryAlignment::ReadGermlineFile(const string & germline_file_name){
 
 	int minLen = 1000, maxLen = 0;
 
+	for (int j = 0; j<germlineDatabase.size(); j++){
+		if (germlineDatabase[j].seqLength < minLen)
+			minLen = germlineDatabase[j].seqLength;
+		if (germlineDatabase[j].seqLength>maxLen)
+			maxLen = germlineDatabase[j].seqLength;			
+	}
+
 	//First lets check to see if we have a headerrow:
 	string headerrow;
 	getline(pFile, headerrow);
@@ -1505,6 +1518,7 @@ void QueryAlignment::ReadGermlineFile(const string & germline_file_name){
 		readfiles::RemoveTrailingSpaces(line);
 		if (line != ""){
 			germlineDatabase.push_back(structvars::Germline());
+			numseqs = germlineDatabase.size() - 1;
 			ss.clear();
 			ss.str(line);
 			//if (foundvheader){
@@ -1611,8 +1625,7 @@ void QueryAlignment::ReadGermlineFile(const string & germline_file_name){
 			if (germlineDatabase[numseqs].seqLength < minLen)
 				minLen = germlineDatabase[numseqs].seqLength;
 			if (germlineDatabase[numseqs].seqLength>maxLen)
-				maxLen = germlineDatabase[numseqs].seqLength;
-			numseqs++;
+				maxLen = germlineDatabase[numseqs].seqLength;			
 		}
 
 	}

@@ -29,8 +29,8 @@ public:
 	void ResetQueryInfo(structvars::ABRead *);//for reading in new sequences/queries.  update the variable
 
 	//overloaded functions for different ways for reading in a germline database
-	void ReadGermlineDatabase(const std::string &, int, bool allowSubstrings=true);
-	void ReadGermlineDatabase(const std::string &, const std::string &, bool allowSubstrings = true);
+	void ReadGermlineDatabase(const std::vector<std::string> &, int, bool allowSubstrings=true);		
+	void ReadGermlineDatabase(const std::string &, const std::string &, bool allowSubstrings = true); //NO LONGER A FUNCTIONAL FUNCTION//
 	int GetMinimumAlignmentLength();
 	int FindBestAlignmentDiagonal(int guessDir = 0, const std::string & locus="");
 	void OptimizeVGeneClusterAlignmentWithGaps(int); //this is a more exact alignmetn method to try to idnetify the actruall regions of alignment //to be called AFTER FindBestAlignmentDiagonal has been used. it wont work otherwise
