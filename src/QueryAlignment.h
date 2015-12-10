@@ -126,7 +126,7 @@ inline void QueryAlignment::UpdateUniqueLocus(const std::string & locus ){
 		}
 	}
 	if (newLocus && locus!=""){
-		uniqueLocus[numUniqueLocusHits] = locus;
+		uniqueLocus.push_back(locus);		
 		numUniqueLocusHits++;
 	}	
 	//if (numUniqueLocusHits>1)
@@ -141,7 +141,7 @@ inline void QueryAlignment::UpdateUniqueChain(const std::string & chain){
 		}
 	}
 	if (newChain && chain!=""){
-		uniqueChains[numUniqueChainHits] = chain;
+		uniqueChains.push_back(chain);		
 		numUniqueChainHits++;
 	}
 }
