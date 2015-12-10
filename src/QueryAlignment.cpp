@@ -49,7 +49,7 @@ QueryAlignment::QueryAlignment(string & query_file, const string & inputFileForm
 	
 	annotationFields = { "FR1_FLANK", "FR1", "CDR1", "FR2", "CDR2", "FR3", "CDR3", "CDR3_FLANK" };	
 	std::string outfilename = "debuggingalignments.txt";
-	debugfile.open(outfilename.c_str());
+	//debugfile.open(outfilename.c_str());
 	t = 0;
 	tO = 0;
 }
@@ -91,7 +91,7 @@ QueryAlignment::QueryAlignment(const structvars::Fileinfo & query_file_info, con
 	tO = 0;
 	std::string outfilename = "debuggingalignments.txt";
 	annotationFields = { "FR1_FLANK", "FR1", "CDR1", "FR2", "CDR2", "FR3", "CDR3", "CDR3_FLANK" };
-	debugfile.open(outfilename.c_str());
+	//debugfile.open(outfilename.c_str());
 }
 
 QueryAlignment::QueryAlignment(string & query_file, const string & inputFileFormat,const string & germline_db_file, const string & cluster_file, const structvars::AlignmentProgramSettings & settings){
@@ -141,7 +141,7 @@ QueryAlignment::QueryAlignment(string & query_file, const string & inputFileForm
 	tO = 0;
 	std::string outfilename = "debuggingalignments.txt";
 	annotationFields = { "FR1_FLANK", "FR1", "CDR1", "FR2", "CDR2", "FR3", "CDR3", "CDR3_FLANK" };
-	debugfile.open(outfilename.c_str());
+	// debugfile.open(outfilename.c_str());
 }
 
 QueryAlignment::QueryAlignment(const structvars::Fileinfo & query_file_info, const string & germline_db_file, const string & cluster_file, const structvars::AlignmentProgramSettings & settings){
@@ -183,7 +183,7 @@ QueryAlignment::QueryAlignment(const structvars::Fileinfo & query_file_info, con
 	tO = 0;
 	std::string outfilename = "debuggingalignments.txt";
 	annotationFields = { "FR1_FLANK", "FR1", "CDR1", "FR2", "CDR2", "FR3", "CDR3", "CDR3_FLANK" };
-	debugfile.open(outfilename.c_str());
+	//debugfile.open(outfilename.c_str());
 }
 
 QueryAlignment::~QueryAlignment(){
@@ -215,7 +215,7 @@ QueryAlignment::~QueryAlignment(){
 	DeleteGermlineVars();
 	DeleteClusterVars();
 	DeleteSeqPeptideVars();
-	debugfile.close();
+	//debugfile.close();
 }
 /*END of CONSTRUCTORS*/
 
