@@ -40,8 +40,10 @@ enum UserSettings{
 	score_ratio,
 	num_above_score_ratio,
 	cluster_germlines_cutoff,
-	group_clusters
+	group_clusters,
+	score_cutoff
 };
+
 struct settings_description{
 	UserSettings parameter;
 	string description;
@@ -49,6 +51,7 @@ struct settings_description{
 		description = "";
 	}
 };
+
 static map<string, settings_description> interpreter;
 
 void InitializeUserSettings(){
@@ -63,7 +66,8 @@ void InitializeUserSettings(){
 	interpreter["s_pep"].parameter = sensitivity_peptide;
 	interpreter["similar_clusters"].parameter = similar_clusters;
 	interpreter["pep_len"].parameter = peptide_len;
-	interpreter["min_per_id"].parameter = min_per_id_threshold;
+	//interpreter["min_per_id"].parameter = min_per_id_threshold;
+	interpreter["score_cutoff"].parameter = score_cutoff;
 	interpreter["num_hits"].parameter = max_germline_hits;
 	interpreter["ratio_cutoff"].parameter = score_ratio;
 	interpreter["times_above_ratio"].parameter = num_above_score_ratio;
@@ -72,6 +76,8 @@ void InitializeUserSettings(){
 }
 
 map<string, int> output_file_fields;
+int minVScore = 30;
+int minJScore = 6;
 
 void EvaluateParameters(int, char *[]); //This function will evaluate the parameters inputed from the user
 void EvaluateAlgnParameters(char, string, string); //This function will evaluate the parameters inputed from the user
@@ -154,17 +160,21 @@ void RunAlignmentProgram(map<string, int> method)
 	}
 
 	//Initialize a vgene alignment variable and a jgene alignment variable
+	
+	variables_used.query_algn_settings['V'].fftParams.scoreCutoff = max(minVScore, variables_used.query_algn_settings['V'].fftParams.scoreCutoff);		
+	variables_used.query_algn_settings['J'].fftParams.scoreCutoff = max(minJScore, variables_used.query_algn_settings['J'].fftParams.scoreCutoff);
 	QueryAlignment vGermlineAlignment(inputseqinfo, variables_used.query_algn_settings['V']), jGermlineAlignment(inputseqinfo, variables_used.query_algn_settings['J']); //The two main variables used in the program //each of these variables will be used to align the queries to either the v gene database or j gene databse
 	QueryAlignment dGermlineAlignment(inputseqinfo, variables_used.query_algn_settings['D']);
-
+	
 	if (method["vgene"] != NONE){ //First we need to read in the file containing v germline genes.  Reading in teh database willl subsequently merge germlinesinto clusters
-		std::printf("Processing the provided V germline database:\n");	
-		vGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['V'].fileGermline, method["vgene"], false); //no cluster was provided in a file, so we will cluster sequences ad-hoc
+		std::printf("Processing the provided V germline database:\n");					
+		vGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['V'].fileGermline, method["vgene"], false); //no cluster was provided in a file, so we will cluster sequences ad-hoc		
 		// vGermlineAlignment.PrintClusterResults("vgermlineclusters.txt");
 	}
 
+
 	if (method["jgene"] != NONE){ //First we need to read in the file containing j germline genes.  Reading in teh database willl subsequently merge germlinesinto clusters
-		std::printf("Processing the provided J germline database:\n");		
+		std::printf("Processing the provided J germline database:\n");				
 		jGermlineAlignment.ReadGermlineDatabase(variables_used.query_algn_settings['J'].fileGermline, method["jgene"]);//no cluster was provided in a file, so we will cluster sequences ad-hoc
 		// jGermlineAlignment.PrintClusterResults("jgermlineclusters.txt");
 	}
@@ -509,7 +519,7 @@ void EvaluateParameters(int argc, char *argv[]){
 		}
 		else if (string(argv[1]) == "--version")
 		{
-			printf("\nVersion 0.63\n");
+			printf("\nVersion 0.8\n");
 			exit(1);
 		}
 		else{
@@ -812,6 +822,7 @@ void EvaluateAlgnParameters(char germline, string parameter, string value){
 	interpreter["times_above_ratio"] = num_above_score_ratio;
 	interpreter["cluster_per_id"] = cluster_germlines_cutoff;
 	interpreter["group_clusters"] = group_clusters;
+	interpreter["score_cutoff"] = score_cutoff;
 	*//////////////////////////////////////////////////////////
 
 	int temp_i;
@@ -943,7 +954,7 @@ void EvaluateAlgnParameters(char germline, string parameter, string value){
 			variables_used.query_algn_settings[germline].peptideParams.peptide_len = temp_i;
 		}
 		break;
-	case min_per_id_threshold:
+	/*case min_per_id_threshold:
 		temp_d = abs(GetDecimalValue(value, true));
 		if (germline == '\0'){
 			variables_used.query_algn_settings['V'].fftParams.scoreCutoff = temp_d;
@@ -952,6 +963,36 @@ void EvaluateAlgnParameters(char germline, string parameter, string value){
 		}
 		else{
 			variables_used.query_algn_settings[germline].fftParams.scoreCutoff = temp_d;
+		}
+		break;*/
+	case score_cutoff:
+		temp_i = abs(GetIntegerValue(value, false));
+		if (germline == '\0'){
+			if (temp_i < minVScore){
+				printf("Warning: Minimum alignment score for V gene set too low. Minimum alignment score for V gene modified to %i\n", minVScore);
+				variables_used.query_algn_settings['V'].fftParams.scoreCutoff = minVScore;	
+			}
+			else
+				variables_used.query_algn_settings['V'].fftParams.scoreCutoff = temp_i;
+			if (temp_i < minJScore){
+				printf("Warning: Minimum alignment score for J gene set too low. Minimum alignment score for J gene modified to %i\n", minJScore);
+				variables_used.query_algn_settings['J'].fftParams.scoreCutoff = minJScore;	
+			}
+			else
+				variables_used.query_algn_settings['J'].fftParams.scoreCutoff = temp_i;
+			variables_used.query_algn_settings['D'].fftParams.scoreCutoff = temp_i;
+			// variables_used.query_algn_settings['J'].fftParams.scoreCutoff = temp_i;
+		}
+		else{
+			if (germline == 'V' && temp_i < minVScore){
+				printf("Warning: Minimum alignment score for V gene set too low. Minimum alignment score for V gene modified to %i\n", minVScore);
+				temp_i = minVScore;
+			}
+			else if(germline == 'J' && temp_i < minJScore){
+				printf("Warning: Minimum alignment score for J gene set too low. Minimum alignment score for J gene modified to %i\n", minJScore);
+				temp_i = minJScore;
+			}
+			variables_used.query_algn_settings[germline].fftParams.scoreCutoff = temp_i;
 		}
 		break;
 	case max_germline_hits:
@@ -1004,7 +1045,7 @@ void EvaluateAlgnParameters(char germline, string parameter, string value){
 		}
 		if (value != "false" && value != "true")
 		{
-			printf("The only allowed values for %s are 'true' or 'false'", parameter.c_str());
+			printf("The only allowed values for %s are 'true' or 'false'\n", parameter.c_str());
 			exit(EXIT_FAILURE);
 		}
 		if (germline == '\0'){
@@ -1029,13 +1070,13 @@ double GetDecimalValue(string value, bool between_0_1){
 	}
 	catch (std::exception& e)
 	{
-		printf("%s must be a decimal number %s", value.c_str(), added_error_string.c_str());
+		printf("%s must be a decimal number %s\n", value.c_str(), added_error_string.c_str());
 		exit(EXIT_FAILURE);
 	}
 
 	if (between_0_1){
 		if (temp_d < 0 || temp_d>1){
-			printf("%s must be a decimal number %s", value.c_str(), added_error_string.c_str());
+			printf("%s must be a decimal number %s\n", value.c_str(), added_error_string.c_str());
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -1050,12 +1091,12 @@ int GetIntegerValue(string value, bool between_0_1){
 	}
 	catch (std::exception& e)
 	{
-		printf("%s must be an integer %s", value.c_str(), added_error_string.c_str());
+		printf("%s must be an integer %s\n", value.c_str(), added_error_string.c_str());
 		exit(EXIT_FAILURE);
 	}
 	if (between_0_1){		
 		if (temp_i < 0 || temp_i>1){			
-			printf("%s must be an integer number %s", value.c_str(), added_error_string.c_str());		
+			printf("%s must be an integer number %s\n", value.c_str(), added_error_string.c_str());		
 			exit(EXIT_FAILURE);		
 		}	
 	}	

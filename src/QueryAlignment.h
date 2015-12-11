@@ -107,7 +107,8 @@ private:
 	structvars::AlignmentProgramSettings algnSettings;
 	complex_t **seqPeptideList; //will store all sequence peptides for FFT of small peptides
 	int *seqPosStore; //will store indexes of what sequences have been currently transformed to FFT and what position need to be transformed
-	double maxCorrectedScore,cluster_cutoff, minFFTAlgnScore;
+	double maxCorrectedScore,cluster_cutoff;
+	int minFFTAlgnScore;
 	std::ofstream debugfile;
 	GermlineCluster *aligned_to_clusters, **results_with_gaps, **results_no_gaps, *best_cluster_so_far;
 	SWAlignment *finalized_sw_alignments;

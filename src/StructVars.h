@@ -103,9 +103,9 @@ namespace structvars{
 	struct FFTSettings{
 		double fftGapOpen, fftExtendGap;
 		int maxGap, extraGap;
-		double scoreCutoff, sensitivity;
+		double sensitivity;
 		double cluster_threshold;
-		int guessDir;
+		int guessDir, scoreCutoff;
 
 		FFTSettings(){
 			guessDir = 0;
@@ -114,7 +114,7 @@ namespace structvars{
 			maxGap = 10;
 			extraGap = 5;
 			sensitivity = 5.0;
-			scoreCutoff = 0.3;// 0.5;
+			scoreCutoff = 4; //0.3;// 0.5;
 			cluster_threshold = 0.8;
 		};
 	};

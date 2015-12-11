@@ -1640,7 +1640,12 @@ void QueryAlignment::ReadGermlineFile(const string & germline_file_name, map<str
 	germlineSeqInfo.minSeqLen = minLen;
 	germlineSeqInfo.numSeqs = germlineDatabase.size();
 	numGermlines = germlineDatabase.size();
-	minFFTAlgnScore = algnSettings.fftParams.scoreCutoff*germlineSeqInfo.minSeqLen;
+	minFFTAlgnScore = algnSettings.fftParams.scoreCutoff; //*germlineSeqInfo.minSeqLen;
+	//printf("%i\n", minFFTAlgnScore);
+	if (minFFTAlgnScore > round(germlineSeqInfo.maxSeqLen * 0.9)){
+		printf("Warning minimum alingment score set too high based on provided germlines. Changing score to %i\n", int(round(germlineSeqInfo.maxSeqLen * 0.9)));
+		minFFTAlgnScore = round(germlineSeqInfo.maxSeqLen * 0.9);
+	}	
 	uniqueChains.resize(unique_chain_names.size());
 	uniqueLocus.resize(unique_locus_names.size());
 }
@@ -1787,7 +1792,7 @@ int QueryAlignment::FindBestAlignmentDiagonal(int guessDir, const string & locus
 	}
 	clock_t s2 = clock();
 	t += s1 - s2;
-	cluster_cutoff = round(algnSettings.fftParams.cluster_threshold*maxCS);
+	cluster_cutoff = max(4.0, round(algnSettings.fftParams.cluster_threshold*maxCS));
 	double bestAlignmentNoGap = 0;
 	int swap_no_gap_index = 0;
 
@@ -1864,7 +1869,8 @@ void QueryAlignment::OptimizeVGeneClusterAlignmentWithGaps(int seqAnalyzed){
 	b = clock();
 	tO += (b - a);
 	//now select the clusters that were found with 70% of the max cluster//
-	cluster_cutoff = max(minFFTAlgnScore,0.7*maxCorrectedScore);
+	cluster_cutoff = max(0.7*minFFTAlgnScore, 0.7*maxCorrectedScore);
+	cluster_cutoff = max(15.0, cluster_cutoff);
 }
 
 void QueryAlignment::DebugAlignments(int seqNum){
@@ -1900,7 +1906,8 @@ void QueryAlignment::OptimizeJGeneClusterAlignmentWithGaps(){
 	b = clock();
 	tO += (b - a);
 	//now select the clusters that were found with 90% of the max cluster//
-	cluster_cutoff = max(minFFTAlgnScore,0.7*maxCorrectedScore);
+	cluster_cutoff = max(0.7*minFFTAlgnScore,0.7*maxCorrectedScore);
+	cluster_cutoff = max(4.0, cluster_cutoff);
 }
 
 int QueryAlignment::AlignClusterResultsToGermline(){
