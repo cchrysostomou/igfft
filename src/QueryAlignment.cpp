@@ -1926,66 +1926,71 @@ int QueryAlignment::AlignClusterResultsToGermline(){
 		if (results_no_gaps[i]->finalScore >= cluster_cutoff){
 			seq_to_align = results_no_gaps[i]->querySeqToBeModified;
 			gapPenalty = results_no_gaps[i]->SWgapPenalty;
-				for (int j = 0; j < results_no_gaps[i]->numGermlineMembers; j++){
-					//if (results_no_gaps[i]->germlineIndices[j] == 198)
-						//cout << "stop";
-					shift = results_no_gaps[i]->germlineStart[j];
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].swAlignDiag = results_no_gaps[i]->initialSWDiag + shift;
-					algnDiagData[0] = results_no_gaps[i]->alignmentToSequence[1];
-					algnDiagData[1] = results_no_gaps[i]->alignmentToSequence[3];
-  					if (shift != 0){
-						shift -= algnDiagData[1];
-						if (shift >= 0){
-							algnDiagData[1] = 0;
-							algnDiagData[0] += shift;
-						}
-						else{
-							algnDiagData[1] = -1 * shift;
-						}
+			for (int j = 0; j < results_no_gaps[i]->numGermlineMembers; j++){
+				//if (results_no_gaps[i]->germlineIndices[j] == 198)
+					//cout << "stop";
+				shift = results_no_gaps[i]->germlineStart[j];
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].swAlignDiag = results_no_gaps[i]->initialSWDiag + shift;
+				algnDiagData[0] = results_no_gaps[i]->alignmentToSequence[1];
+				algnDiagData[1] = results_no_gaps[i]->alignmentToSequence[3];
+  				if (shift != 0){
+					shift -= algnDiagData[1];
+					if (shift >= 0){
+						algnDiagData[1] = 0;
+						algnDiagData[0] += shift;
 					}
-
-					shift = algnDiagData[0] - (algnDiagData[1] - 0);
-					
-					algnDiagData[1] = shift < queryStart ? queryStart - shift : 0; //make this always above next line (algnDiagdata'0] = shift..)!!!
-					algnDiagData[0] = shift < queryStart ? queryStart : shift;																			
-					algnDiagData[2] = results_no_gaps[i]->germlineSequences[j].length()-algnDiagData[1];//results_no_gaps[i]->alignmentToSequence[5];
-
-
-					
-					(*finalized_sw_alignments).GaplessAlignDiag(seq_to_align, results_no_gaps[i]->germlineSequences[j], algnDiagData);
-					scoreBest = (*finalized_sw_alignments).maxScore;
-					scoreBest -= gapPenalty;
-
-					if ((*finalized_sw_alignments).germStart < 10 && (*finalized_sw_alignments).germStart>0)
-					{
-						shift = (*finalized_sw_alignments).seqStart - (*finalized_sw_alignments).germStart;
-						(*finalized_sw_alignments).germStart = shift < queryStart ? queryStart - shift: 0;
-						(*finalized_sw_alignments).seqStart = shift < queryStart ? queryStart : shift;
+					else{
+						algnDiagData[1] = -1 * shift;
 					}
-						
-					shift = (results_no_gaps[i]->germlineSequences[j].length()-1) - (*finalized_sw_alignments).germEnd;
-					if (shift > 0 && shift < 10){						
-				
-						(*finalized_sw_alignments).germEnd = shift + (*finalized_sw_alignments).seqEnd >= querySeq[0].seq.length() ? (*finalized_sw_alignments).germEnd + ((querySeq[0].seq.length()-1) - (*finalized_sw_alignments).seqEnd) : results_no_gaps[i]->germlineSequences[j].length()-1;
-						(*finalized_sw_alignments).seqEnd = shift + (*finalized_sw_alignments).seqEnd >= querySeq[0].seq.length() ? querySeq[0].seq.length() - 1 : shift + (*finalized_sw_alignments).seqEnd;
-					}
-					
-					aligned_to_germline_scores[foundHits][0] = scoreBest;
-					aligned_to_germline_scores[foundHits][1] = results_no_gaps[i]->germlineIndices[j];					
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].score = scoreBest;
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].minDiag = results_no_gaps[i]->minDiag;
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].maxDiag = results_no_gaps[i]->maxDiag;
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].dir = results_no_gaps[i]->dir;
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].startGerm = (*finalized_sw_alignments).germStart;
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].endGerm = (*finalized_sw_alignments).germEnd;
-					
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].startQuery = (*finalized_sw_alignments).seqStart;
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].endQuery = (*finalized_sw_alignments).seqEnd;
-
-					germlineHits[results_no_gaps[i]->germlineIndices[j]].algnLen = germlineHits[results_no_gaps[i]->germlineIndices[j]].endQuery - germlineHits[results_no_gaps[i]->germlineIndices[j]].startQuery + 1;
-					
-					foundHits++;
 				}
+
+				shift = algnDiagData[0] - (algnDiagData[1] - 0);
+					
+				algnDiagData[1] = shift < queryStart ? queryStart - shift : 0; //make this always above next line (algnDiagdata'0] = shift..)!!!
+				algnDiagData[0] = shift < queryStart ? queryStart : shift;																			
+				algnDiagData[2] = results_no_gaps[i]->germlineSequences[j].length()-algnDiagData[1];//results_no_gaps[i]->alignmentToSequence[5];
+
+
+					
+				(*finalized_sw_alignments).GaplessAlignDiag(seq_to_align, results_no_gaps[i]->germlineSequences[j], algnDiagData);
+				scoreBest = (*finalized_sw_alignments).maxScore;
+				scoreBest -= gapPenalty;
+
+				if (scoreBest < cluster_cutoff)
+					//This is mostlikely due to a the fact that this germline is in the cluster gruop BUT with respect to query it is truncated.
+					//so the part of the cluster that aligns to query IS NOT found in this germline
+					continue;
+
+				if ((*finalized_sw_alignments).germStart < 10 && (*finalized_sw_alignments).germStart>0)
+				{
+					shift = (*finalized_sw_alignments).seqStart - (*finalized_sw_alignments).germStart;
+					(*finalized_sw_alignments).germStart = shift < queryStart ? queryStart - shift: 0;
+					(*finalized_sw_alignments).seqStart = shift < queryStart ? queryStart : shift;
+				}
+						
+				shift = (results_no_gaps[i]->germlineSequences[j].length()-1) - (*finalized_sw_alignments).germEnd;
+				if (shift > 0 && shift < 10){						
+				
+					(*finalized_sw_alignments).germEnd = shift + (*finalized_sw_alignments).seqEnd >= querySeq[0].seq.length() ? (*finalized_sw_alignments).germEnd + ((querySeq[0].seq.length()-1) - (*finalized_sw_alignments).seqEnd) : results_no_gaps[i]->germlineSequences[j].length()-1;
+					(*finalized_sw_alignments).seqEnd = shift + (*finalized_sw_alignments).seqEnd >= querySeq[0].seq.length() ? querySeq[0].seq.length() - 1 : shift + (*finalized_sw_alignments).seqEnd;
+				}
+					
+				aligned_to_germline_scores[foundHits][0] = scoreBest;
+				aligned_to_germline_scores[foundHits][1] = results_no_gaps[i]->germlineIndices[j];					
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].score = scoreBest;
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].minDiag = results_no_gaps[i]->minDiag;
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].maxDiag = results_no_gaps[i]->maxDiag;
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].dir = results_no_gaps[i]->dir;
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].startGerm = (*finalized_sw_alignments).germStart;
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].endGerm = (*finalized_sw_alignments).germEnd;
+					
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].startQuery = (*finalized_sw_alignments).seqStart;
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].endQuery = (*finalized_sw_alignments).seqEnd;
+
+				germlineHits[results_no_gaps[i]->germlineIndices[j]].algnLen = germlineHits[results_no_gaps[i]->germlineIndices[j]].endQuery - germlineHits[results_no_gaps[i]->germlineIndices[j]].startQuery + 1;
+					
+				foundHits++;
+			}
 		}
 	}
 
