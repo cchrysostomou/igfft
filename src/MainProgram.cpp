@@ -509,7 +509,7 @@ void EvaluateParameters(int argc, char *argv[]){
 		}
 		else if (string(argv[1]) == "--version")
 		{
-			printf("\nVersion 0.62");
+			printf("\nVersion 0.63");
 			exit(1);
 		}
 		else{
