@@ -65,7 +65,7 @@ public:
 private:
 	//bool Compare(const std::vector<double>&, const std::vector<double> &);
 	void MapCrossCorrelationToShift();
-	void ReadGermlineFile(const std::string &);	
+	void ReadGermlineFile(const std::string &, std::map<std::string, int> &, std::map<std::string, int> &);
 	void ReadInClusterDatabase(const std::string &);//read a cluster file (tab delimited) into the proper variable
 	void GroupGermlinesIntoClusters();
 	void FindConsensusSeqInCluster(std::vector<int> &, const std::vector<std::vector<double>> &, std::vector<std::vector<int>>&, std::vector<std::string>&);
@@ -126,7 +126,7 @@ inline void QueryAlignment::UpdateUniqueLocus(const std::string & locus ){
 		}
 	}
 	if (newLocus && locus!=""){
-		uniqueLocus.push_back(locus);		
+		uniqueLocus[numUniqueLocusHits] = locus;
 		numUniqueLocusHits++;
 	}	
 	//if (numUniqueLocusHits>1)
@@ -141,7 +141,7 @@ inline void QueryAlignment::UpdateUniqueChain(const std::string & chain){
 		}
 	}
 	if (newChain && chain!=""){
-		uniqueChains.push_back(chain);		
+		uniqueChains[numUniqueChainHits] = chain;
 		numUniqueChainHits++;
 	}
 }

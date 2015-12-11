@@ -13,6 +13,7 @@ QueryAlignment::QueryAlignment(string & query_file, const string & inputFileForm
 	else{
 		printf("Calcuating number of sequences\n");
 		queryInfo = readfiles::readSeqLengths(query_file.c_str(), "TAB");
+		
 	}
 
 	algnSettings = settings;
@@ -238,7 +239,10 @@ void QueryAlignment::ReadGermlineDatabase(const string & germline_file_name, con
 
 	DeleteGermlineVars(); //if its not the frist time we called this function, then we need to delete the germline database we have made previously
 
-	ReadGermlineFile(germline_file_name); //first read in all of the germlines defined in the germline file name
+	map<string, int> unique_locus_names;
+	map<string, int> unique_chain_names;
+
+	ReadGermlineFile(germline_file_name, unique_locus_names, unique_chain_names); //first read in all of the germlines defined in the germline file name
 
 	//Now we know the size of the database, so we can start initlalizing some of the germline variables
 	germlineHits = new structvars::GermlineAlignmentResults[numGermlines];
@@ -268,9 +272,12 @@ void QueryAlignment::ReadGermlineDatabase(const string & germline_file_name, con
 void QueryAlignment::ReadGermlineDatabase(const std::vector<std::string> & germline_files, int method, bool allowSubstrings){
 	// DeleteGermlineVars(); //if its not the frist time we called this function, then we need to delete the germline database we have made previously
 
+	map<string, int> unique_locus_names;
+	map<string, int> unique_chain_names;
+
 	for (int i = 0; i < germline_files.size(); i++){
 		printf("%s\n", germline_files[i].c_str());
-		ReadGermlineFile(germline_files[i]); //first read in all of the germlines defined in the germline file name
+		ReadGermlineFile(germline_files[i], unique_locus_names, unique_chain_names); //first read in all of the germlines defined in the germline file name
 	}
 
 	//Now we know the size of the database, so we can start initlalizing some of the germline variables
@@ -1441,7 +1448,7 @@ void QueryAlignment::CopyGermlineDBToClusterDB(){
 	   //SECOND COLUMN => ACTUAL FULL LENGTH SEQUENCE
 	   //THIRD COLUMN => LOCUS OF THE GERMLINE SEQUENCE
 	   //ALL OTHER COLUMNS CAN CONTAIN ADDITIONAL ANNOTATION DATA FOR GERMLINE GENE (I.E. FR1, CDR1, CHAIN, SPECIES, ETC)
-void QueryAlignment::ReadGermlineFile(const string & germline_file_name){
+void QueryAlignment::ReadGermlineFile(const string & germline_file_name, map<string, int> & unique_locus_names, map<string, int> & unique_chain_names){
 
 	map<string, int> frameworkMap;
 	for (int i = 0; i < annotationFields.size(); i++){
@@ -1509,8 +1516,7 @@ void QueryAlignment::ReadGermlineFile(const string & germline_file_name){
 	}*/
 
 	map<string, structvars::Abregion>::iterator my_iter;
-	map<string, int> unique_locus_names;
-	map<string, int> unique_chain_names;
+	
 
 	//Each cluster will be read line by line
 	while (!pFile.eof()){

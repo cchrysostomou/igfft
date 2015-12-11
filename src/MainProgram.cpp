@@ -141,6 +141,12 @@ void RunAlignmentProgram(map<string, int> method)
 	else if (variables_used.inputFileFormat == "FASTQ"){
 		std::printf("Calcuating number of sequences\n");
 		inputseqinfo = readfiles::convertFASTQtoTAB(seq_filename);
+		/*inputseqinfo.numSeqs = 200000;
+		inputseqinfo.maxSeqLen = 350;
+		inputseqinfo.minSeqLen = 100;
+		inputseqinfo.avgSeqLen = 350;
+		//int numSeqs, maxSeqLen, minSeqLen, avgSeqLen;
+		*/
 	}
 	else{
 		std::printf("Calcuating number of sequences\n");
