@@ -1558,9 +1558,7 @@ void QueryAlignment::ReadGermlineFile(const string & germline_file_name, map<str
 						germlineDatabase[numseqs].genename = field;
 					else{*/
 					if (fieldname == "FR1" || fieldname == "FR2" || fieldname == "FR3" || fieldname == "CDR1" || fieldname == "CDR2" || fieldname == "CDR3"){
-						germlineDatabase[numseqs].annotation[fieldname].sequence = field;
-						//OK now that we found all of the features, we have to find there nucleotide position along the full-length germline sequence
-						readfiles::FindAbRegion(germlineDatabase[numseqs].annotation[fieldname], germlineDatabase[numseqs].germlineSeqData.seq, startpos); //SEARCH FOR FR1 IN SEQUENCE, UPDATE STARTPOS, OR POSITION AT WHICH IT WAS FOUND
+						germlineDatabase[numseqs].annotation[fieldname].sequence = field;						
 					}
 					else if (fieldname == "LOCUS"){
 						if (field != ""){
@@ -1581,7 +1579,8 @@ void QueryAlignment::ReadGermlineFile(const string & germline_file_name, map<str
 				}
 
 				column++;
-			}				
+			}			
+
 			//}
 			//else{
 				//we assume that the first column is the sequence and the second column is the genename.
@@ -1596,16 +1595,28 @@ void QueryAlignment::ReadGermlineFile(const string & germline_file_name, map<str
 			int max_fr = annotationFields.size()-1;
 			int minp = germlineDatabase[numseqs].seqLength;
 			int maxp = 0;
-			for (auto my_iter = germlineDatabase[numseqs].annotation.begin(); my_iter != germlineDatabase[numseqs].annotation.end(); ++my_iter) {				
-				for (int p = my_iter->second.startpos; p <= my_iter->second.endpos; p++){
-					germlineDatabase[numseqs].annotationIndex[p] = frameworkMap[my_iter->first];
+			std::vector<std::string> fieldnamesannotation {"FR1", "CDR1", "FR2", "CDR2", "FR3", "CDR3" };
+			std::string specific_field_annotation;
+			map<string, structvars::Abregion>::iterator itgerm;
+			//for (auto my_iter = germlineDatabase[numseqs].annotation.begin(); my_iter != germlineDatabase[numseqs].annotation.end(); ++my_iter) {
+			int find_sub_seq = 0;
+			for (int gs = 0; gs < fieldnamesannotation.size(); gs++){
+				specific_field_annotation = fieldnamesannotation[gs];
+				itgerm = germlineDatabase[numseqs].annotation.find(specific_field_annotation);
+				if (itgerm == germlineDatabase[numseqs].annotation.end())
+					continue;
+				//OK now that we found all of the features, we have to find there nucleotide position along the full-length germline sequence				
+				readfiles::FindAbRegion(germlineDatabase[numseqs].annotation[specific_field_annotation], germlineDatabase[numseqs].germlineSeqData.seq, find_sub_seq); //SEARCH FOR FR1 IN SEQUENCE, UPDATE STARTPOS, OR POSITION AT WHICH IT WAS FOUND				
+
+				for (int p = germlineDatabase[numseqs].annotation[specific_field_annotation].startpos; p <= germlineDatabase[numseqs].annotation[specific_field_annotation].endpos; p++){
+					germlineDatabase[numseqs].annotationIndex[p] = frameworkMap[specific_field_annotation];
 					if (p <= minp){
 						minp = p;
-						min_fr = frameworkMap[my_iter->first];
+						min_fr = frameworkMap[specific_field_annotation];
 					}
 					if (p >= maxp){
 						maxp = p;
-						max_fr = frameworkMap[my_iter->first];
+						max_fr = frameworkMap[specific_field_annotation];
 					}
 				}
 			}
@@ -1633,7 +1644,6 @@ void QueryAlignment::ReadGermlineFile(const string & germline_file_name, map<str
 			if (germlineDatabase[numseqs].seqLength>maxLen)
 				maxLen = germlineDatabase[numseqs].seqLength;			
 		}
-
 	}
 	
 	germlineSeqInfo.maxSeqLen = maxLen;	

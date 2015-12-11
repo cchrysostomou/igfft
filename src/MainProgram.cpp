@@ -163,7 +163,8 @@ void RunAlignmentProgram(map<string, int> method)
 	
 	variables_used.query_algn_settings['V'].fftParams.scoreCutoff = max(minVScore, variables_used.query_algn_settings['V'].fftParams.scoreCutoff);		
 	variables_used.query_algn_settings['J'].fftParams.scoreCutoff = max(minJScore, variables_used.query_algn_settings['J'].fftParams.scoreCutoff);
-	QueryAlignment vGermlineAlignment(inputseqinfo, variables_used.query_algn_settings['V']), jGermlineAlignment(inputseqinfo, variables_used.query_algn_settings['J']); //The two main variables used in the program //each of these variables will be used to align the queries to either the v gene database or j gene databse
+	QueryAlignment vGermlineAlignment(inputseqinfo, variables_used.query_algn_settings['V']);
+	QueryAlignment jGermlineAlignment(inputseqinfo, variables_used.query_algn_settings['J']); //The two main variables used in the program //each of these variables will be used to align the queries to either the v gene database or j gene databse
 	QueryAlignment dGermlineAlignment(inputseqinfo, variables_used.query_algn_settings['D']);
 	
 	if (method["vgene"] != NONE){ //First we need to read in the file containing v germline genes.  Reading in teh database willl subsequently merge germlinesinto clusters
@@ -425,6 +426,11 @@ void RunAlignmentProgram(map<string, int> method)
 				results_to_text[output_file_fields["CDR3:FR4_SEQUENCE.NT"]] = seqRead.seq.substr(vGeneResults.cdr3start, abend - vGeneResults.cdr3start + 1);
 				results_to_text[output_file_fields["CDR3:FR4_SEQUENCE.AA"]] = dnafunctions::TranslateSeq(results_to_text[output_file_fields["CDR3:FR4_SEQUENCE.NT"]], vGeneResults.readingFrame["CDR3"], vGeneResults.cdr3start); // seqRead.seq.substr(abstart, abend - abstart + 1);
 			}
+			else if (numVGermlineHits > 0){
+				results_to_text[output_file_fields["CDR3:FR4_SEQUENCE.NT"]] = seqRead.seq.substr(vGeneResults.QE + 1, abend - vGeneResults.QE + 1);
+				results_to_text[output_file_fields["CDR3:FR4_SEQUENCE.AA"]] = dnafunctions::TranslateSeq(results_to_text[output_file_fields["CDR3:FR4_SEQUENCE.NT"]], vGeneResults.readingFrame["CDR3"], vGeneResults.QE); // seqRead.seq.substr(abstart, abend - abstart + 1);
+				notes += "DEBUGTHISCDR3;";
+			}
 
 			results_to_text[output_file_fields["Strand_Corrected_Sequence"]] = seqRead.seq;
 			results_to_text[output_file_fields["Full_Length_Sequence.NT"]] = seqRead.seq.substr(abstart, abend - abstart + 1);						
@@ -519,7 +525,7 @@ void EvaluateParameters(int argc, char *argv[]){
 		}
 		else if (string(argv[1]) == "--version")
 		{
-			printf("\nVersion 0.8\n");
+			printf("\nVersion 0.81\n");
 			exit(1);
 		}
 		else{

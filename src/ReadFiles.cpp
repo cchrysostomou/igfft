@@ -517,15 +517,14 @@ structvars::PairwiseClusterAlignment readfiles::ParsePairwiseAlignmentString(str
 	return tempvar;
 }
 
-void readfiles::FindAbRegion(structvars::Abregion & ab_sub_region, string full_seq, int &startpos){
-	std::size_t found;
-	startpos = 0;
+void readfiles::FindAbRegion(structvars::Abregion & ab_sub_region, string full_seq, int & startpos){
+	std::size_t found;	
 	if (ab_sub_region.sequence != ""){ //make sure there is even a sequence to be found
 		found = full_seq.find(ab_sub_region.sequence, startpos);
-		if (found != std::string::npos){
-			startpos = found + 1;
+		if (found != std::string::npos){			
 			ab_sub_region.startpos = found;
 			ab_sub_region.endpos = found + ab_sub_region.sequence.length() - 1;
+			startpos = ab_sub_region.endpos + 1;
 		}
 		else{
 			ab_sub_region.startpos = -1;
